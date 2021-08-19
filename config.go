@@ -9,13 +9,13 @@ import (
 
 var Config map[string]string
 
-func NewConfig() {
+func NewConfig(app string) {
 	//env := os.Getenv("CONFIG")
-	jsondoc, _ := os.Open("/usr/config/config")
-	config, err := ioutil.ReadAll(jsondoc)
+	xmlfile, _ := os.Open("/usr/config/" + app + "/config")
+	config, err := ioutil.ReadAll(xmlfile)
 
 	if err != nil {
-		panic(("Failed to load config new : " + err.Error()))
+		panic(("Failed to load config : " + err.Error()))
 	}
 
 	var objmap map[string]*json.RawMessage
@@ -25,7 +25,6 @@ func NewConfig() {
 		Config = make(map[string]string)
 	}
 
-	log.Println("\n========================Config============================:\n")
 	for key, value := range objmap {
 		val := string(*value)
 
@@ -37,7 +36,12 @@ func NewConfig() {
 		}
 
 		Config[key] = val
-		log.Printf("%s:%s\n", key, val)
+		//log.Printf("%s:%s\n", key, val)
 	}
-	log.Println("\n==========================END==============================:\n")
+
+	log.Println("Config loaded")
+}
+
+func Get(variable string) string {
+	return Config[variable]
 }
