@@ -9,6 +9,10 @@ import (
 
 var Config map[string]string
 
+/*
+	Initialize a new JSON config instance
+	app - application name
+*/
 func NewConfig(app string) {
 	//env := os.Getenv("CONFIG")
 	xmlfile, _ := os.Open("/usr/config/" + app + "/config")
@@ -42,6 +46,11 @@ func NewConfig(app string) {
 	log.Println("Config loaded")
 }
 
+/*
+	Get a variable from JSON config instance
+	variable - variable name
+	return value
+*/
 func Get(variable string) string {
 	return Config[variable]
 }
