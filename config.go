@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strings"
 )
 
 type NullValue struct {
@@ -25,7 +24,7 @@ var Editor string
 func NewConfig(app string) {
 	args := os.Args
 	print := false
-	filename := getConfigPath() + app + ".conf"
+	filename := "./" + app + ".conf"
 
 	if args[1] == "config" {
 		if len(args) < 3 {
@@ -84,35 +83,6 @@ func NewConfig(app string) {
 	if print {
 		os.Exit(0)
 	}
-}
-
-func getConfigPath() (value string) {
-	grep := exec.Command("grep", "GOCONFIG")
-	ps := exec.Command("go", "env")
-
-	// Get ps's stdout and attach it to grep's stdin.
-	pipe, _ := ps.StdoutPipe()
-	defer pipe.Close()
-
-	grep.Stdin = pipe
-
-	// Run ps first.
-	ps.Start()
-
-	// Run and get the output of grep.
-	res, _ := grep.Output()
-
-	if len(string(res)) == 0 {
-		log.Fatal("GOCONFIG env not set, 'go env -w GOCONFIG=\"path/to/config/files\"'")
-	}
-
-	chunk := strings.Split(string(res), "\"")
-
-	if len(chunk) < 3 {
-		log.Fatal("GOCONFIG env not set, 'go env -w GOCONFIG=\"path/to/config/files\"'")
-	}
-
-	return chunk[1]
 }
 
 /*
