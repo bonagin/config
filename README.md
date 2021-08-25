@@ -50,8 +50,13 @@ Add the config flag and the path to the config file
 ```bash
 $ /path/to/exercutable --config /path/to/configfile
 ```
+
 ```diff
- - test 
+- text in red
++ text in green
+! text in orange
+# text in gray
+@@ text in purple (and bold)@@
 ```
 
 ### Note
