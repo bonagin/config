@@ -44,7 +44,11 @@ import (
 config.NewConfig("test")
 
 // Call the Get method to read the config variable.
-fmt.Println(config.Get("HELLO"))
+config_var := config.Get("HELLO")
+```
+Add the config flag and the path to the config file
+```bash
+$ /path/to/exercutable --config /path/to/configfile
 ```
 
 ### Note
