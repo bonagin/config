@@ -50,6 +50,9 @@ Add the config flag and the path to the config file
 ```bash
 $ /path/to/exercutable --config /path/to/configfile
 ```
+```diff
+ + test 
+```
 
 ### Note
 The library only supports `string` variable ut will be changed in future to return an `interface`
