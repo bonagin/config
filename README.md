@@ -51,14 +51,6 @@ Add the config flag and the path to the config file
 $ /path/to/exercutable --config /path/to/configfile
 ```
 
-```diff
-- This is an alert
-+ This is an update
-! This is a warning
-# This is a notification
-@@ This is a dump (and bold)@@
-```
-
 ### Note
 The library only supports `string` variable ut will be changed in future to return an `interface`
 
