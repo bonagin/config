@@ -1,6 +1,6 @@
 # Config Library
 
-Custom made JSON config library fo go
+Custom JSON config library fo go
 
 ---------------------------------------
   * [Features](#features)
@@ -25,7 +25,7 @@ Custom made JSON config library fo go
 
 ## Installation
 ```bash
-$ go get -u github.com/go-sql-driver/mysql
+$ go get -u github.com/bonagin/config
 ```
 Make sure [Git is installed](https://git-scm.com/downloads) on your machine and in your system's `PATH`.
 
