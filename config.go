@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 )
 
 type NullValue struct {
@@ -15,7 +14,6 @@ type NullValue struct {
 
 var Config map[string]NullValue
 var ConfigFileName NullValue
-var Editor string
 
 /*
 	Initialize a new JSON config instance
@@ -24,27 +22,23 @@ var Editor string
 func NewConfig(app string) {
 	args := os.Args
 	print := false
-	filename := "./" + app + ".conf"
+	filename := ""
 
-	if len(args) > 1 {
-		if args[1] == "config" {
-			if len(args) < 3 {
-				log.Fatal("Error: missing flag" + app +
-					"\n\t '" + args[0] + " config -h' for help")
-			}
-
-			print = configOptions(args[2], filename)
-
-			if !print {
-				os.Exit(0)
+	for i, arg := range args {
+		if arg == "--config" {
+			if len(args) > (i + 1) {
+				filename = args[i+1]
 			}
 		}
 	}
 
+	if filename == "" {
+		log.Fatal("\nConfig tag not set\n\t '" + os.Args[0] + "' --config /path/to/json/configfile'")
+	}
+
 	file, err := os.Open(filename)
 	if err != nil {
-		log.Fatal("Config not set for applicatiion: '" + app +
-			"\n\t '" + args[0] + " config -h' for help")
+		log.Fatal("Failed to open config file ", err.Error())
 	}
 
 	config, err := ioutil.ReadAll(file)
@@ -98,48 +92,4 @@ func Get(variable string) string {
 	}
 
 	return Config[variable].Value
-}
-
-func configOptions(flag, filename string) bool {
-
-	switch flag {
-	case "-e":
-		if len(os.Args) < 4 {
-			log.Fatal("\nEnter editor name eg. nano/vim")
-		}
-
-		Editor = os.Args[3]
-		log.Println("\nEditor set to '" + Editor + "'")
-	case "-w":
-		if Editor == "" {
-			Editor = "nano"
-		}
-
-		if !ConfigFileName.NotNull {
-			cmd := exec.Command(Editor, filename)
-			cmd.Stdin = os.Stdin
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-
-			err := cmd.Start()
-			if err != nil {
-				log.Fatal(err.Error())
-			}
-			err = cmd.Wait()
-			if err != nil {
-				log.Printf("Error while editing. Error: %v\n", err)
-			} else {
-				log.Printf("Successfully edited.")
-			}
-		}
-	case "-r":
-		return true
-	default:
-		log.Println("\nConfig Help: ")
-		log.Println(" -e  set editor to use when editing the config file")
-		log.Println(" -w  Write/Edit the config file")
-		log.Println(" -r  Read the config")
-	}
-
-	return false
 }
