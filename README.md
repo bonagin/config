@@ -25,7 +25,7 @@ Custom JSON config library fo go
 
 ## Installation
 ```bash
-$ go get -u github.com/bonagin/config
+go get -u github.com/bonagin/config
 ```
 Make sure [Git is installed](https://git-scm.com/downloads) on your machine and in your system's `PATH`.
 
