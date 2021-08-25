@@ -19,7 +19,7 @@ Custom JSON config library fo go
   * *.conf files can be updated externally.
 
 ## Requirements
-  * Supports any Go version
+  * Supports Go 1.7 or later
 
 ---------------------------------------
 
