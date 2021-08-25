@@ -26,7 +26,7 @@ func NewConfig(app string) {
 	print := false
 	filename := "./" + app + ".conf"
 
-	if args[1] == "config" {
+	if (len(args) < 2) && (args[1] == "config") {
 		if len(args) < 3 {
 			log.Fatal("Error: missing flag" + app +
 				"\n\t '" + args[0] + " config -h' for help")
