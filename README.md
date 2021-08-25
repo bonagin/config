@@ -52,11 +52,11 @@ $ /path/to/exercutable --config /path/to/configfile
 ```
 
 ```diff
-- text in red
-+ text in green
-! text in orange
-# text in gray
-@@ text in purple (and bold)@@
+- This is an alert
++ This is an update
+! This is a warning
+# This is a notification
+@@ This is a dump (and bold)@@
 ```
 
 ### Note
