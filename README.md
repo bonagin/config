@@ -51,7 +51,7 @@ Add the config flag and the path to the config file
 $ /path/to/exercutable --config /path/to/configfile
 ```
 ```diff
- + test 
+ - test 
 ```
 
 ### Note
