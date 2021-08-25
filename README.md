@@ -1,6 +1,6 @@
-# Credits API
+# Config Library
 
-Credits system for the [bulksms_client_django](https://github.com/dakab1/bulksms_client_django) system
+Custom made JSON config library fo go
 
 ---------------------------------------
   * [Features](#features)
