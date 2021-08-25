@@ -26,16 +26,18 @@ func NewConfig(app string) {
 	print := false
 	filename := "./" + app + ".conf"
 
-	if (len(args) < 2) && (args[1] == "config") {
-		if len(args) < 3 {
-			log.Fatal("Error: missing flag" + app +
-				"\n\t '" + args[0] + " config -h' for help")
-		}
+	if len(args) > 1 {
+		if args[1] == "config" {
+			if len(args) < 3 {
+				log.Fatal("Error: missing flag" + app +
+					"\n\t '" + args[0] + " config -h' for help")
+			}
 
-		print = configOptions(args[2], filename)
+			print = configOptions(args[2], filename)
 
-		if !print {
-			os.Exit(0)
+			if !print {
+				os.Exit(0)
+			}
 		}
 	}
 
