@@ -17,9 +17,8 @@ var ConfigFileName NullValue
 
 /*
 	Initialize a new JSON config instance
-	app - application name
 */
-func NewConfig(app string) {
+func NewConfig() {
 	args := os.Args
 	print := false
 	filename := ""
