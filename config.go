@@ -73,7 +73,7 @@ func NewConfig() {
 
 	ConfigFileName = NullValue{Value: file.Name(), NotNull: true}
 
-	log.Println("Config loaded")
+	// log.Println("Config loaded")
 
 	if print {
 		os.Exit(0)
