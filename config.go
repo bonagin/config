@@ -87,7 +87,13 @@ func NewConfig() {
 */
 func Get(variable string) string {
 	if !Config[variable].NotNull {
-		log.Fatal("'" + variable + "' not set in config file: '" + ConfigFileName.Value + "'")
+		env := os.Getenv(variable)
+
+		if env != "" {
+            return env
+        }
+
+		log.Fatal("'" + variable + "' not set as an enviromental variable or in config file: '" + ConfigFileName.Value + "'")
 	}
 
 	return Config[variable].Value
