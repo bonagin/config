@@ -1,10 +1,15 @@
 package config
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+
+	secretmanager "cloud.google.com/go/secretmanager/apiv1"
+	"cloud.google.com/go/secretmanager/apiv1/secretmanagerpb"
 )
 
 type NullValue struct {
@@ -13,10 +18,75 @@ type NullValue struct {
 }
 
 var (
-	Config           map[string]NullValue
-	ConfigFileName   NullValue
-	ConfigFileParsed bool
+	Config                 map[string]NullValue
+	ConfigFileName         NullValue
+	ConfigFileParsed       bool
+	gSecreteManagerEnabled bool
+	gSecreteClient         *secretmanager.Client
+	gSecreteProjectID      string
 )
+
+/*
+EnableGSecreteManager enables Google Secret Manager as a third configuration option
+projectID - Google Cloud Project ID where secrets are stored
+*/
+func EnableGSecreteManager(projectID string) error {
+	if projectID == "" {
+		return fmt.Errorf("projectID cannot be empty")
+	}
+
+	ctx := context.Background()
+	client, err := secretmanager.NewClient(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to create secret manager client: %v", err)
+	}
+
+	gSecreteClient = client
+	gSecreteProjectID = projectID
+	gSecreteManagerEnabled = true
+
+	log.Println("Google Secret Manager enabled for project:", projectID)
+	return nil
+}
+
+/*
+DisableGSecreteManager disables Google Secret Manager integration
+*/
+func DisableGSecreteManager() {
+	if gSecreteClient != nil {
+		gSecreteClient.Close()
+		gSecreteClient = nil
+	}
+	gSecreteManagerEnabled = false
+	gSecreteProjectID = ""
+	log.Println("Google Secret Manager disabled")
+}
+
+/*
+getSecretFromGSM retrieves a secret from Google Secret Manager
+secretName - name of the secret to retrieve
+returns the secret value or empty string if not found
+*/
+func getSecretFromGSM(secretName string) string {
+	if !gSecreteManagerEnabled || gSecreteClient == nil {
+		return ""
+	}
+
+	ctx := context.Background()
+	secretPath := fmt.Sprintf("projects/%s/secrets/%s/versions/latest", gSecreteProjectID, secretName)
+
+	req := &secretmanagerpb.AccessSecretVersionRequest{
+		Name: secretPath,
+	}
+
+	result, err := gSecreteClient.AccessSecretVersion(ctx, req)
+	if err != nil {
+		log.Printf("Failed to access secret %s: %v", secretName, err)
+		return ""
+	}
+
+	return string(result.Payload.Data)
+}
 
 /*
 Initialize a new JSON config instance
@@ -95,21 +165,67 @@ func NewConfig() {
 Get a variable from JSON config instance
 variable - variable name
 return value
+Priority order: 1. JSON config file, 2. Environment variables, 3. Google Secret Manager (if enabled)
 */
 func Get(variable string) string {
-	if !ConfigFileParsed {
-		return os.Getenv(variable)
+	// First: Check if config file was parsed and variable exists in config
+	if ConfigFileParsed && Config[variable].NotNull {
+		return Config[variable].Value
 	}
 
-	if !Config[variable].NotNull {
-		env := os.Getenv(variable)
+	// Second: Check environment variables
+	env := os.Getenv(variable)
+	if env != "" {
+		return env
+	}
 
-		if env != "" {
-			return env
+	// Third: Check Google Secret Manager (if enabled)
+	if gSecreteManagerEnabled {
+		secret := getSecretFromGSM(variable)
+		if secret != "" {
+			return secret
 		}
-
-		log.Fatal("'" + variable + "' not set as an enviromental variable or in config file: '" + ConfigFileName.Value + "'")
 	}
 
-	return Config[variable].Value
+	// If config file was parsed, show which file was checked
+	if ConfigFileParsed {
+		if gSecreteManagerEnabled {
+			log.Fatal("'" + variable + "' not set as an environmental variable, in config file: '" + ConfigFileName.Value + "', or in Google Secret Manager")
+		} else {
+			log.Fatal("'" + variable + "' not set as an environmental variable or in config file: '" + ConfigFileName.Value + "'")
+		}
+	} else {
+		// Config file not parsed, only checked env and possibly GSM
+		if gSecreteManagerEnabled {
+			log.Fatal("'" + variable + "' not set as an environmental variable or in Google Secret Manager")
+		} else {
+			log.Fatal("'" + variable + "' not set as an environmental variable")
+		}
+	}
+
+	return ""
+}
+
+/*
+IsGSecreteManagerEnabled returns whether Google Secret Manager is currently enabled
+*/
+func IsGSecreteManagerEnabled() bool {
+	return gSecreteManagerEnabled
+}
+
+/*
+GetGSecreteProjectID returns the current Google Cloud Project ID used for Secret Manager
+*/
+func GetGSecreteProjectID() string {
+	return gSecreteProjectID
+}
+
+/*
+CleanupGSecreteManager should be called before application exit to properly close the Secret Manager client
+*/
+func CleanupGSecreteManager() {
+	if gSecreteClient != nil {
+		gSecreteClient.Close()
+		gSecreteClient = nil
+	}
 }
