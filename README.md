@@ -51,7 +51,7 @@ import (
   "github.com/bonagin/config"
 )
 // Initialize the config library using the application name as the argument
-config.NewConfig("test")
+config.NewConfig()
 
 // Call the Get method to read the config variable.
 config_var := config.Get("HELLO")
